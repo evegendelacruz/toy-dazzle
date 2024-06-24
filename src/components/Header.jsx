@@ -4,6 +4,10 @@ import { products } from "../data/products";
 import { CiSearch } from "react-icons/ci";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import {
+  sendPasswordResetEmail,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 import { auth, fireDB } from "../firebase"; // Updated import for auth
 import {
   collection,
@@ -16,14 +20,16 @@ import { useSelector } from "react-redux";
 import { RiShoppingCartLine } from "react-icons/ri";
 import { FaUserCircle } from "react-icons/fa"; // Changed to FaUserCircle
 import { BiShowAlt, BiSolidShow } from "react-icons/bi";
+import { IoIosArrowRoundBack } from "react-icons/io";
 
 const Header = () => {
   const [loginNav, setLoginNav] = useState(false);
+  const [showForgotPasswordContent, setShowForgotPasswordContent] =
+    useState(false); // State for showing forgot password form
   const [searchQuery, setSearchQuery] = useState("");
   const location = useLocation();
   const [userData, setUserData] = useState(null);
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
-  const [showRegisterForm, setShowRegisterForm] = useState(false); // State for registration form
   const [snapshotListener, setSnapshotListener] = useState(null); // State to hold snapshot listener
   const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
@@ -90,20 +96,37 @@ const Header = () => {
   const onSubmit = async (data) => {
     try {
       // Sign in user with email and password using Firebase authentication
-      const { user } = await auth.signInWithEmailAndPassword(
+      const users = await signInWithEmailAndPassword(
+        auth,
         data.email,
         data.password
       );
 
-      unsubscribeSnapshot(); // Clean up existing snapshot listener
-      handleSnapshotListener(user); // Set up new snapshot listener
-
+      // Query Firestore to get user data
+      const loginQuery = query(
+        collection(fireDB, "user"),
+        where("uid", "==", users?.user?.uid)
+      );
+      const snapshot = onSnapshot(loginQuery, (QuerySnapshot) => {
+        let user;
+        QuerySnapshot.forEach((doc) => (user = doc.data()));
+        localStorage.setItem("users", JSON.stringify(user));
+        setUserData(user);
+        window.location.reload();
+      });
       setLoginNav(false);
+      return () => snapshot;
     } catch (error) {
-      console.error("Error signing in:", error);
+      console.log(error);
       toast.error(error.message);
     }
   };
+
+  // Load user data from local storage on component mount
+  useEffect(() => {
+    const userData = localStorage.getItem("users");
+    setUserData(userData ? JSON.parse(userData) : null);
+  }, []);
 
   // Logout function
   const logout = () => {
@@ -119,7 +142,7 @@ const Header = () => {
     try {
       // Query Firestore to check if the email exists in the 'users' collection
       const userQuery = query(
-        collection(fireDB, "users"),
+        collection(fireDB, "user"),
         where("email", "==", data.email)
       );
 
@@ -132,7 +155,10 @@ const Header = () => {
       }
 
       // If documents are returned, proceed to send the password reset link
-      await auth.sendPasswordResetEmail(data.email);
+      await sendPasswordResetEmail(auth, data.email);
+      // await sendPasswordResetEmail(auth, data.email, {
+      //   url: "https://toy-dazzle.vercel.app/",
+      // });
       toast.success(
         "A password reset link has been sent to your email address."
       );
@@ -284,29 +310,185 @@ const Header = () => {
                         Logout
                       </Link>
                     </>
-                  ) : (
-                    <>
-                      <Link
-                        to="/auth/login"
-                        onClick={() => setLoginNav(false)}
-                        className="py-2 px-4 hover:bg-gray-200 outfit"
-                      >
-                        Login
-                      </Link>
-                      <div
-                        onClick={() => setShowRegisterForm(true)}
-                        className="py-2 px-4 hover:bg-gray-200 outfit cursor-pointer"
-                      >
-                        Create Account
+                  ) : showForgotPasswordContent ? (
+                    <div className="absolute z-10  border right-0 top-[56px] p-6 w-[400px] shadow-md bg-white">
+                      <div className="flex items-center justify-between">
+                        <IoIosArrowRoundBack
+                          fontSize={24}
+                          className="cursor-pointer"
+                          onClick={() => setShowForgotPasswordContent(false)}
+                        />
+
+                        <h1 className="text-center fredoka font-semibold text-2xl">
+                          Recover my Account
+                        </h1>
+
+                        <div className="invisible"></div>
                       </div>
-                      <Link
-                        to="/auth/reset-password"
-                        onClick={() => setLoginNav(false)}
-                        className="py-2 px-4 hover:bg-gray-200 outfit"
+                      <form
+                        onSubmit={handleSubmit(handleResetPasswordLinkSubmit)}
+                        className="flex flex-col gap-5 mt-4"
                       >
-                        Reset Password
-                      </Link>
-                    </>
+                        <div>
+                          <input
+                            type="email"
+                            placeholder="Email"
+                            className={`${
+                              errors.email ? "border-[2px] border-red-500" : ""
+                            } border w-full border-[#FA6A02] px-4 rounded-2xl py-3 `}
+                            {...register("email", {
+                              required: "Email is required",
+                              pattern: {
+                                value:
+                                  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                message: "Please enter a valid email address.",
+                              },
+                            })}
+                          />
+                          {errors.email && (
+                            <div className="text-red-500 font-bold mt-2">
+                              {errors.email.message}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="flex items-center justify-center">
+                          <button
+                            disabled={isSubmitting}
+                            type="submit"
+                            className="bg-[#007FFF] px-4 h-[45px] border border-[#007FFF] shadow-md w-[200px] rounded-3xl font-bold text-[18px] text-white"
+                          >
+                            {isSubmitting ? (
+                              <l-dot-pulse
+                                size="38"
+                                speed="1.3"
+                                color="white"
+                              ></l-dot-pulse>
+                            ) : (
+                              <span>Send Reset Link</span>
+                            )}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  ) : (
+                    <div className="absolute z-10  border right-0 top-[56px] p-6 w-[400px] shadow-md bg-white">
+                      <h1 className="text-center fredoka font-semibold text-2xl">
+                        Login to my Account
+                      </h1>
+                      <form
+                        onSubmit={handleSubmit(onSubmit)}
+                        className="flex flex-col gap-5 mt-6"
+                      >
+                        <div>
+                          <input
+                            type="email"
+                            placeholder="Email"
+                            className={`${
+                              errors.email ? "border-[2px] border-red-500" : ""
+                            } border w-full border-[#FA6A02] px-4 rounded-2xl py-3 `}
+                            {...register("email", {
+                              required: "Email is required",
+                              pattern: {
+                                value:
+                                  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                message: "Please enter a valid email address.",
+                              },
+                            })}
+                          />
+
+                          {errors.email && (
+                            <div className="text-red-500 font-bold mt-2">
+                              {errors.email.message}
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <div className="relative">
+                            <input
+                              type={showPassword ? "text" : "password"}
+                              placeholder="Password"
+                              className={`${
+                                errors.password
+                                  ? "border-[2px] border-red-500"
+                                  : ""
+                              } border w-full border-[#FA6A02] px-4 rounded-2xl py-3 `}
+                              {...register("password", {
+                                required: "Password is required",
+                              })}
+                            />
+                            <div
+                              className="absolute top-1/2 transform -translate-y-1/2 right-3"
+                              onClick={togglePasswordVisibility}
+                            >
+                              {showPassword ? (
+                                <BiShowAlt
+                                  fontSize={24}
+                                  className="cursor-pointer"
+                                />
+                              ) : (
+                                <BiSolidShow
+                                  fontSize={24}
+                                  className="cursor-pointer"
+                                />
+                              )}
+                            </div>
+                          </div>
+
+                          {errors.password && (
+                            <div className="text-red-500 font-bold mt-2">
+                              {errors.password.message}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-center">
+                          <button
+                            disabled={isSubmitting}
+                            type="submit"
+                            className="bg-[#007FFF] px-4 h-[45px] border border-[#007FFF] shadow-md w-[120px] rounded-3xl font-bold text-[18px] text-white"
+                          >
+                            {isSubmitting ? (
+                              <l-dot-pulse
+                                size="38"
+                                speed="1.3"
+                                color="white"
+                              ></l-dot-pulse>
+                            ) : (
+                              <span>Log in</span>
+                            )}
+                          </button>
+                        </div>
+                      </form>
+                      <div className="text-center flex flex-col gap-1 mt-6">
+                        <h3 className="outfit font-semibold">
+                          New customer?
+                          <Link
+                            to="/auth/register"
+                            onClick={() => {
+                              setLoginNav((prev) => !prev);
+                            }}
+                            className="text-[#FA6A02]"
+                          >
+                            {" "}
+                            Create an Account
+                          </Link>
+                        </h3>
+                        <h3
+                          onClick={() =>
+                            setShowForgotPasswordContent(
+                              !showForgotPasswordContent
+                            )
+                          }
+                          className="outfit font-semibold cursor-pointer"
+                        >
+                          Forgot Password?
+                          <span className="text-[#FA6A02]">
+                            {" "}
+                            Recover Password
+                          </span>
+                        </h3>
+                      </div>
+                    </div>
                   )}
                 </div>
               </div>
@@ -379,84 +561,13 @@ const Header = () => {
         )}
       </div>
       <NavLink
-              to="/auth/register"
-              onClick={() => {
-                setIsMobileNavOpen(false);
-                setShowRegisterForm(true); // Display registration form on mobile
-              }}
-              className="fredoka text-xl"
-              activeClassName="text-[#007FFF]"
-            >
-            </NavLink>
-      {userData ? (
-        <div>
-          <NavLink
-            to="/profile"
-            onClick={() => setIsMobileNavOpen(false)}
-            className="fredoka text-xl"
-            activeClassName="text-[#007FFF]"
-          >
-            {userData.firstName.charAt(0).toUpperCase() +
-              userData.firstName.slice(1)}{" "}
-            {userData.lastName.charAt(0).toUpperCase() +
-              userData.lastName.slice(1)}
-          </NavLink>
-          <NavLink
-            to="/purchases"
-            onClick={() => setIsMobileNavOpen(false)}
-            className="fredoka text-xl"
-            activeClassName="text-[#007FFF]"
-          >
-            Purchases
-          </NavLink>
-          <NavLink
-            to="/reviews"
-            onClick={() => setIsMobileNavOpen(false)}
-            className="fredoka text-xl"
-            activeClassName="text-[#007FFF]"
-          >
-            Reviews
-          </NavLink>
-          <NavLink
-            to="/help"
-            onClick={() => setIsMobileNavOpen(false)}
-            className="fredoka text-xl"
-            activeClassName="text-[#007FFF]"
-          >
-            Help
-          </NavLink>
-          <NavLink
-            to="/settings"
-            onClick={() => setIsMobileNavOpen(false)}
-            className="fredoka text-xl"
-            activeClassName="text-[#007FFF]"
-          >
-            Settings
-          </NavLink>
-          <NavLink
-            className="fredoka text-xl"
-            onClick={() => {
-              setIsMobileNavOpen(false);
-              logout();
-            }}
-            activeClassName="text-[#007FFF]"
-          >
-            Logout
-          </NavLink>
-        </div>
-      ) : (
-        <div>
-          <NavLink
-            to="/auth/login"
-            onClick={() => {
-              setIsMobileNavOpen(false);
-              setShowForgotPasswordContent(false);
-            }}
-            className="fredoka text-xl"
-            activeClassName="text-[#007FFF]"
-          ></NavLink>
-        </div>
-      )}
+        to="/auth/register"
+        onClick={() => {
+          setIsMobileNavOpen(false);
+        }}
+        className="fredoka text-xl"
+        activeclassname="text-[#007FFF]"
+      ></NavLink>
 
       {/* Mobile Navigation Menu */}
       <div className="bg-white categories__container w-full shadow-md flex items-center justify-center gap-12 h-[50px]">
@@ -465,7 +576,7 @@ const Header = () => {
             {Navlinks.map((link, index) => (
               <NavLink
                 key={index}
-                exact
+                exact="true"
                 to={link.to}
                 className={`cursor-pointer outfit font-semibold text-md hover:text-[#FA6A02] ${
                   location.pathname === link.to ? "text-[#FA6A02]" : ""
@@ -483,7 +594,7 @@ const Header = () => {
           {Navlinks.map((link, index) => (
             <NavLink
               key={index}
-              exact
+              exact="true"
               to={link.to}
               className={`outfit font-semibold text-md hover:text-[#FA6A02] ${
                 location.pathname === link.to ? "text-[#FA6A02]" : ""
