@@ -4,15 +4,15 @@ import React from "react";
 const vouchers = [
   {
     id: 1122,
-    image: "/images/vouchers/1.webp",
+    image: "/images/vouchers/1.png",
   },
   {
     id: 2131,
-    image: "/images/vouchers/2.webp",
+    image: "/images/vouchers/2.png",
   },
   {
     id: 3123,
-    image: "/images/vouchers/3.webp",
+    image: "/images/vouchers/3.png",
   },
 ];
 

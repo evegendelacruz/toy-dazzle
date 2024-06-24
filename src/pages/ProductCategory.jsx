@@ -20,7 +20,7 @@ const ProductCategory = () => {
   return (
     <div className="">
       {banner && (
-        <div className="category-banner  py-10 lg:px-16 2xl:px-40 mx-auto">
+        <div className="category-banner py-10 lg:px-16 2xl:px-40 mx-auto">
           <img
             src={banner.image}
             alt={`Banner for ${category}`}
@@ -28,7 +28,7 @@ const ProductCategory = () => {
           />
         </div>
       )}
-      <div className="grid grid-cols-4 gap-8 lg:px-16 2xl:px-40 py-10">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 lg:px-16 2xl:px-40 py-10">
         {filteredProducts.map((product) => (
           <ProductCard key={product.id} product={product} />
         ))}

@@ -14,27 +14,15 @@ import { Autoplay, Pagination, Navigation } from "swiper/modules";
 const slides = [
   {
     id: 1,
-    image: "/images/slides/1.webp",
+    image: "/images/slides/3.png",
   },
   {
     id: 2,
-    image: "/images/slides/2.webp",
+    image: "/images/slides/1.png",
   },
   {
     id: 3,
-    image: "/images/slides/3.webp",
-  },
-  {
-    id: 4,
-    image: "/images/slides/4.webp",
-  },
-  {
-    id: 5,
-    image: "/images/slides/5.webp",
-  },
-  {
-    id: 6,
-    image: "/images/slides/6.webp",
+    image: "/images/slides/2.png",
   },
 ];
 

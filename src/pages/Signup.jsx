@@ -73,8 +73,8 @@ const Signup = () => {
   }, [navigate, isLoggedIn]);
 
   return (
-    <main className="bg-[#FFD72D] lg:p-16 lg:py-16 xl:px-40 ">
-      <div className="flex items-center">
+    <main className="bg-[#FFD72D] lg:p-16 lg:py-20 xl:px-40 ">
+      <div className="flex flex-col lg:flex-row items-center">
         <div className="basis-1/2">
           <img
             src="/images/signup/pool.webp"
@@ -83,13 +83,13 @@ const Signup = () => {
             loading="lazy"
           />
         </div>
-        <div className="content__container py-10 pb-12 h-full  basis-[50%] bg-white rounded-3xl">
+        <div className="content__container py-5 pb-9 h-full basis-[50%] bg-white rounded-3xl lg:mb-20 mb-10">
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className="flex-col gap-8 flex  px-10 xl:px-20 2xl:px-36"
+            className="flex-col gap-4 flex px-5 xl:px-20 2xl:px-35"
           >
-            <h1 className="fredoka font-semibold text-4xl mb-4 text-center  ">
-              Sign Up/Register
+            <h1 className="fredoka font-semibold text-[#FA6A02] text-2xl text-center">
+              SIGN UP
             </h1>
             <div>
               <input
@@ -98,7 +98,7 @@ const Signup = () => {
                 autoComplete="off"
                 className={`${
                   errors.firstName ? "border-[2px] border-red-500" : ""
-                } border border-[#FA6A02] rounded-2xl py-4 px-4 text-gray-600 text-xl font-semibold w-full `}
+                } border border-[#FA6A02] rounded-2xl py-2 px-4 text-gray-600 text-2 font-semibold w-full`}
                 {...register("firstName", {
                   required: "First Name  is required",
                   pattern: {
@@ -121,7 +121,7 @@ const Signup = () => {
                 autoComplete="off"
                 className={`${
                   errors.lastName ? "border-[2px] border-red-500" : ""
-                } border border-[#FA6A02] rounded-2xl py-4 px-4 text-gray-600 text-xl font-semibold w-full `}
+                } border border-[#FA6A02] rounded-2xl py-2 px-4 text-gray-600 text-2 font-semibold w-full`}
                 {...register("lastName", {
                   required: "Last Name  is required",
                   pattern: {
@@ -144,7 +144,7 @@ const Signup = () => {
                 autoComplete="off"
                 className={`${
                   errors.username ? "border-[2px] border-red-500" : ""
-                } border border-[#FA6A02] rounded-2xl py-4 px-4 text-gray-600 text-xl font-semibold w-full `}
+                } border border-[#FA6A02] rounded-2xl py-2 px-4 text-gray-600 text-2 font-semibold w-full`}
                 {...register("username", {
                   required: "Username is required",
                 })}
@@ -162,7 +162,7 @@ const Signup = () => {
                 autoComplete="off"
                 className={`${
                   errors.email ? "border-[2px] border-red-500" : ""
-                } border border-[#FA6A02] rounded-2xl py-4 px-4 text-gray-600 text-xl font-semibold w-full `}
+                } border border-[#FA6A02] rounded-2xl py-2 px-4 text-gray-600 text-2 font-semibold w-full`}
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
@@ -186,7 +186,7 @@ const Signup = () => {
                   autoComplete="off"
                   className={`${
                     errors.password ? "border-[2px] border-red-500" : ""
-                  } border border-[#FA6A02] rounded-2xl py-4 px-4 text-gray-600 text-xl font-semibold w-full  `}
+                  } border border-[#FA6A02] rounded-2xl py-2 px-4 text-gray-600 text-2 font-semibold w-full`}
                   {...register("password", {
                     required: "Password is required",
                     pattern: {
@@ -219,7 +219,7 @@ const Signup = () => {
             <button
               disabled={isSubmitting}
               type="submit"
-              className="rounded-full mt-2 py-4 px-4 fredoka text-white bg-[#2BBD6E] font-semibold text-xl shadow-2xl border"
+              className="rounded-full mt-2 py-2 px-4 fredoka text-white bg-[#2BBD6E] font-semibold text-2 shadow-2xl border"
             >
               {isSubmitting ? (
                 <l-dot-pulse size="38" speed="1.3" color="white"></l-dot-pulse>

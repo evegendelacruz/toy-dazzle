@@ -25,48 +25,52 @@ const ProductCard = ({ product }) => {
   };
 
   return (
-    <div className="border pb-8 pt-0  lg:h-[450px] xl:h-[500px]   2xl:h-[600px] px-4 flex flex-col gap-2 relative">
-      <h1 className="absolute right-[20px] top-0">
+    <div className="border pb-4 pt-0 lg:pb-8 lg:pt-0 xl:pb-8 xl:pt-0 2xl:pb-4 2xl:pt-0 px-4 flex flex-col gap-2 relative">
+      <div className="absolute right-2 top-2 lg:right-4 lg:top-1">
         <img
-          src="/images/icons/productlogo.webp"
+          src="/images/icons/Logo.png"
           loading="lazy"
           alt=""
-          className="w-[150px] lg:w-[100px]"
+          className="w-16 lg:w-20"
         />
-      </h1>
+      </div>
       <Link
         className="w-full h-full"
         to={`/product?id=${product.id}&name=${product.name}`}
       >
-        <img
-          src={product.image}
-          alt=""
-          className=" h-full cursor-pointer "
-          onClick={handleClick}
-        />
+        <div className="aspect-w-3 aspect-h-4">
+          <img
+            src={product.image}
+            alt=""
+            className="object-cover w-full h-full cursor-pointer"
+            onClick={handleClick}
+          />
+        </div>
       </Link>
-      <Link to={`/product?id=${product.id}&name=${product.name}`}>
-        <h1
-          className="outfit title font-semibold text-xl lg:text-lg"
-          onClick={handleClick}
+      <div className="flex-grow flex flex-col justify-between">
+        <Link to={`/product?id=${product.id}&name=${product.name}`}>
+          <h1
+            className="outfit title font-semibold text-base lg:text-lg"
+            onClick={handleClick}
+          >
+            {product.name}
+          </h1>
+        </Link>
+
+        <span className="text-[#FA6A02] font-semibold text-base lg:text-lg">
+          {product.price.toLocaleString("en-PH", {
+            style: "currency",
+            currency: "PHP",
+          })}
+        </span>
+
+        <button
+          onClick={() => addCart(product)}
+          className="fredoka text-base lg:text-lg bg-[#FA6A02] text-white h-10 lg:h-14 xl:h-14 2xl:h-10 mt-2 w-full"
         >
-          {product.name}
-        </h1>
-      </Link>
-
-      <span className="text-[#FA6A02] font-semibold text-lg">
-        {product.price.toLocaleString("en-PH", {
-          style: "currency",
-          currency: "PHP",
-        })}
-      </span>
-
-      <button
-        onClick={() => addCart(product)}
-        className="w-full fredoka text-lg bg-[#FA6A02] text-white h-[70px] mt-2"
-      >
-        Add to Cart
-      </button>
+          Add to Cart
+        </button>
+      </div>
     </div>
   );
 };
