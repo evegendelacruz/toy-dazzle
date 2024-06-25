@@ -8,7 +8,7 @@ import {
   sendPasswordResetEmail,
   signInWithEmailAndPassword,
 } from "firebase/auth";
-import { auth, fireDB } from "../firebase"; // Updated import for auth
+import { auth, fireDB } from "../firebase";
 import {
   collection,
   getDocs,
@@ -178,7 +178,7 @@ const Header = () => {
       <div className="nav__container bg-[#007FFF] flex justify-between items-center px-6 py-1 lg:px-16">
         <Link to="/" className="logo__container">
           <img
-            src="/images/icons/logo.webp"
+            src="/images/icons/Logo.png"
             alt=""
             width="150"
             loading="lazy"
@@ -372,7 +372,7 @@ const Header = () => {
                       </form>
                     </div>
                   ) : (
-                    <div className="absolute z-10  border right-0 top-[56px] p-6 w-[400px] shadow-md bg-white">
+                    <div className="absolute z-50  border right-0 p-6 w-[310px] shadow-md bg-white">
                       <h1 className="text-center fredoka font-semibold text-2xl">
                         Login to my Account
                       </h1>
@@ -572,7 +572,7 @@ const Header = () => {
       {/* Mobile Navigation Menu */}
       <div className="bg-white categories__container w-full shadow-md flex items-center justify-center gap-12 h-[50px]">
         {isMobileNavOpen && (
-          <div className="flex flex-col items-center gap-4 py-4 absolute top-[58px] w-full left-0 bg-white shadow-md border">
+          <div className="flex flex-col items-center gap-4 py-4 absolute top-[100px] w-full left-0 bg-white shadow-md border">
             {Navlinks.map((link, index) => (
               <NavLink
                 key={index}

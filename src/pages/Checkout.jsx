@@ -56,7 +56,8 @@ const Checkout = () => {
                     </span>
                   </p>
                   <p className="text-sm text-gray-600">
-                    Quantity: <span className="font-semibold">{item.quantity}</span>
+                    Quantity:{" "}
+                    <span className="font-semibold">{item.quantity}</span>
                   </p>
                 </div>
               </div>
@@ -86,7 +87,11 @@ const Checkout = () => {
                 <div className="border-b border-gray-400 w-full my-4"></div>
                 <div className="flex items-center justify-between cursor-pointer">
                   <div className="flex items-center gap-2">
-                    <img src="/images/icons/car.webp" alt="Car Icon" className="w-6 h-6" />
+                    <img
+                      src="/images/icons/car.webp"
+                      alt="Car Icon"
+                      className="w-6 h-6"
+                    />
                     <span className="text-lg font-bold">Track your order</span>
                   </div>
                   <button
@@ -125,12 +130,13 @@ const Checkout = () => {
                   </button>
                 </div>
                 {isTrackingOpen && (
-                  <div className="flex flex-col gap-4 mt-4">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-4 mt-4 relative">
+                    <div className="flex items-center gap-2 relative">
+                      {/* Track icon */}
                       <img
                         src="/images/icons/track.webp"
                         alt="Track Icon"
-                        className="w-6 h-6"
+                        className="w-18 h-30 absolute top-11 mr-10 mt-3"
                       />
                       <div>
                         <p className="text-sm font-semibold">
@@ -143,19 +149,23 @@ const Checkout = () => {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
+                      <div className="w-10 h-10"></div>
                       <div>
-                        <p className="text-sm font-semibold">Preparing to ship.</p>
+                        <p className="text-sm font-semibold">
+                          Preparing to ship.
+                        </p>
                         <p className="text-sm text-gray-600">
                           Seller is preparing to ship your parcel
                         </p>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
+                      <div className="w-10 h-10"></div>
                       <div>
                         <p className="text-sm font-semibold">Order placed.</p>
-                        <p className="text-sm text-gray-600">Order is placed.</p>
+                        <p className="text-sm text-gray-600">
+                          Order is placed.
+                        </p>
                       </div>
                     </div>
                   </div>
