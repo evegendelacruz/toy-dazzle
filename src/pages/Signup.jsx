@@ -33,6 +33,7 @@ const Signup = () => {
         username: data.username,
         email: users.user.email,
         uid: users.user.uid,
+        role: "user", // <-- assign default role
         time: Timestamp.now(),
         date: new Date().toLocaleString("en-US", {
           month: "short",

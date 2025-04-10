@@ -6,7 +6,10 @@ import { useDispatch } from "react-redux";
 
 const ProductCard = ({ product }) => {
   const handleClick = () => {
-    window.scrollTo(0, 0); // Scroll to the top of the page when clicked
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth", // or 'auto' for instant scroll
+    });
   };
 
   const dispatch = useDispatch(); // Initialize useDispatch hook to dispatch actions

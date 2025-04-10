@@ -1,13 +1,14 @@
 import React from "react";
-
 import Featured from "../components/Featured";
 import Voucher from "../components/Voucher";
-
-import { products } from "../data/products";
+import Loader from "../components/Loader";
 import Products from "../components/Products";
 import ShopBrands from "../components/ShopBrands";
+import useProducts from "../hooks/useProducts";
 
 const Home = () => {
+  const { products, loading } = useProducts();
+
   // Filter out the best seller products using the tag
   const bestSellers = products.filter(
     (product) => product.tag && product.tag.includes("Best Seller")
@@ -22,8 +23,14 @@ const Home = () => {
     <div>
       <Featured />
       <Voucher />
-      <Products title="Best Selling" data={bestSellers} />
-      <Products title="New Arrivals" data={newArrivals} />
+      {loading ? (
+        <Loader />
+      ) : (
+        <>
+          <Products title="Best Selling" data={bestSellers} />
+          <Products title="New Arrivals" data={newArrivals} />
+        </>
+      )}
       <ShopBrands />
     </div>
   );

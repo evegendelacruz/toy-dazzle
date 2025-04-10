@@ -17,6 +17,11 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store.jsx";
 import Checkout from "./pages/Checkout.jsx";
 import ErrorPage from "./pages/ErrorPage.jsx";
+import AdminRoutes from "./components/AdminRoutes.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
+import CategoryManagement from "./pages/admin/CategoryManagement.jsx";
+import ProductManagement from "./pages/admin/ProductManagement.jsx";
+import UserManagement from "./pages/admin/UserManagement.jsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -28,6 +33,15 @@ const router = createBrowserRouter(
       <Route path="/product" element={<ProductInformation />} />
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
+
+      {/* Protected Admin Routes */}
+      <Route path="/admin" element={<AdminRoutes />}>
+        <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="categories" element={<CategoryManagement />} />
+        <Route path="products" element={<ProductManagement />} />
+        <Route path="users" element={<UserManagement />} />
+        {/* Add more admin-only routes here */}
+      </Route>
     </Route>
   )
 );

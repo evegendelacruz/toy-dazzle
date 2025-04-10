@@ -9,6 +9,14 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { FaMinus, FaPlus } from "react-icons/fa6";
 import { toast } from "react-toastify";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import { fireDB } from "../firebase";
 
 const Cart = () => {
   const dispatch = useDispatch();
@@ -47,19 +55,44 @@ const Cart = () => {
   };
 
   // Function to checkout
-  const handleCheckoutHandler = () => {
-    // If no selected option , toast an error
+  const handleCheckoutHandler = async () => {
     if (!selectedOption) {
       return toast.error("Please select payment option");
-    } else if (selectedOption === "Gcash") {
-      // If gcash is selected, toast an error
+    }
+
+    if (selectedOption === "Gcash") {
       return toast.error("Gcash is not available");
     }
 
-    // If correct option is selected , redirect to /checkout page with mop information
-    navigate(`/checkout?mop=${selectedOption}`);
-  };
+    try {
+      for (const item of cartItems) {
+        const productsRef = collection(fireDB, "products");
+        const q = query(productsRef, where("id", "==", item.id));
+        const querySnapshot = await getDocs(q);
 
+        if (!querySnapshot.empty) {
+          const productDoc = querySnapshot.docs[0];
+          const productRef = productDoc.ref;
+          const currentStock = productDoc.data().stock;
+
+          if (item.quantity > currentStock) {
+            toast.error(`Not enough stock for ${item.name}`);
+            return; // exit early
+          }
+
+          await updateDoc(productRef, {
+            stock: currentStock - item.quantity,
+          });
+        }
+      }
+
+      // ✅ After all stock is updated, proceed to checkout
+      navigate(`/checkout?mop=${selectedOption}`);
+    } catch (error) {
+      console.error("Error during checkout:", error);
+      toast.error("Something went wrong during checkout.");
+    }
+  };
   return (
     <div>
       {cartItems.length > 0 ? (
@@ -79,9 +112,7 @@ const Cart = () => {
                   />
                 </div>
                 <div className="content w-full lg:w-2/3">
-                  <h1 className="fredoka text-xl font-semibold">
-                    {item.name}
-                  </h1>
+                  <h1 className="fredoka text-xl font-semibold">{item.name}</h1>
 
                   <div className="mt-4">
                     <div className="flex items-center gap-4 outfit font-bold">

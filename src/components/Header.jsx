@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
-import { products } from "../data/products";
 import { CiSearch } from "react-icons/ci";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
@@ -18,11 +17,16 @@ import {
 } from "firebase/firestore";
 import { useSelector } from "react-redux";
 import { RiShoppingCartLine } from "react-icons/ri";
-import { FaUserCircle } from "react-icons/fa"; // Changed to FaUserCircle
+import { FaUserCircle } from "react-icons/fa";
 import { BiShowAlt, BiSolidShow } from "react-icons/bi";
 import { IoIosArrowRoundBack } from "react-icons/io";
+import useCategories from "../hooks/useCategories";
+import { Navlinks } from "../data/navLinks";
+import useProducts from "../hooks/useProducts";
 
 const Header = () => {
+  const { categories, loading } = useCategories();
+
   const [loginNav, setLoginNav] = useState(false);
   const [showForgotPasswordContent, setShowForgotPasswordContent] =
     useState(false); // State for showing forgot password form
@@ -34,14 +38,7 @@ const Header = () => {
   const [showPassword, setShowPassword] = useState(false); // State to toggle password visibility
 
   const cartItems = useSelector((state) => state.cart.cartItems);
-
-  const Navlinks = [
-    { navname: "Boys", to: "/categories/boys" },
-    { navname: "Girls", to: "/categories/girls" },
-    { navname: "Baby", to: "/categories/baby" },
-    { navname: "Learning", to: "/categories/learning" },
-    { navname: "Riding", to: "/categories/riding" },
-  ];
+  const { products, loading: loadingProducts } = useProducts();
 
   // Filtered search data based on search query
   const filteredSearchData = products
@@ -70,26 +67,6 @@ const Header = () => {
       snapshotListener();
       setSnapshotListener(null);
     }
-  };
-
-  // Set up snapshot listener for user data
-  const handleSnapshotListener = (user) => {
-    const loginQuery = query(
-      collection(fireDB, "users"),
-      where("uid", "==", user.uid)
-    );
-
-    const snapshot = onSnapshot(loginQuery, (querySnapshot) => {
-      let userData;
-      querySnapshot.forEach((doc) => (userData = doc.data()));
-      localStorage.setItem("users", JSON.stringify(userData));
-      setUserData(userData);
-    });
-
-    // Save snapshot listener to state
-    setSnapshotListener(snapshot);
-
-    return snapshot;
   };
 
   // Handle login form submission
@@ -177,12 +154,7 @@ const Header = () => {
     <div className="sticky top-0 w-full z-30">
       <div className="nav__container bg-[#007FFF] flex justify-between items-center px-6 py-1 lg:px-16">
         <Link to="/" className="logo__container">
-          <img
-            src="/images/icons/Logo.png"
-            alt=""
-            width="150"
-            loading="lazy"
-          />
+          <img src="/images/icons/Logo.png" alt="" width="150" loading="lazy" />
         </Link>
 
         {/* Wide Screen Search Bar */}
@@ -203,28 +175,28 @@ const Header = () => {
             </button>
           </form>
           {searchQuery && (
-            <div className="absolute top-12 md:top-[60px] w-full md:max-w-[43%] border-t border-[#007FFF] shadow-md bg-white z-20">
-              {filteredSearchData.map((product) => (
-                <Link
-                  to={`/product?id=${product.id}&name=${product.name}`}
-                  key={product.id}
-                  className="flex items-center gap-2 hover:bg-gray-200 p-4"
-                  onClick={() => setSearchQuery("")}
-                >
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="w-10"
-                  />
-                  <h1 className="fredoka text-base">{product.name}</h1>
-                </Link>
-              ))}
-              {filteredSearchData.length === 0 && (
-                <div className="flex items-center p-4 gap-2">
-                  <CiSearch size={20} />
-                  <p className="fredoka text-base">
-                    No results found. Try another search
-                  </p>
+            <div className="absolute top-12 md:top-[68px] w-full md:max-w-[49%] border-t border-[#007FFF] shadow-md bg-white z-20">
+              {loadingProducts ? (
+                <div className="p-4 text-gray-500">Loading products...</div>
+              ) : filteredSearchData.length > 0 ? (
+                filteredSearchData.map((product) => (
+                  <Link
+                    to={`/product?id=${product.id}&name=${product.name}`}
+                    key={product.id}
+                    className="flex items-center gap-2 hover:bg-gray-200 p-4"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      className="w-10"
+                    />
+                    <h1 className="fredoka text-base">{product.name}</h1>
+                  </Link>
+                ))
+              ) : (
+                <div className="p-4 text-gray-500">
+                  No matching products found.
                 </div>
               )}
             </div>
@@ -258,7 +230,7 @@ const Header = () => {
               <FaUserCircle size={26} color="white" />
             </div>
             {loginNav && (
-              <div className="absolute z-10 border right-0 top-[56px] w-[200px] shadow-md bg-white">
+              <div className="absolute z-10 border right-0 top-[40px] w-[200px] shadow-md bg-white">
                 <div className="flex flex-col">
                   {userData ? (
                     <>
@@ -275,6 +247,18 @@ const Header = () => {
                           userData.lastName.slice(1)
                         }`}
                       </Link>
+                      {userData?.role === "admin" && (
+                        <>
+                          <Link
+                            to="/admin/dashboard"
+                            onClick={() => setLoginNav(false)}
+                            className="py-2 px-4 hover:bg-gray-200 outfit outfit  text-md "
+                          >
+                            Dashboard
+                          </Link>
+                        </>
+                      )}
+
                       <Link
                         to="/purchases"
                         onClick={() => setLoginNav(false)}
@@ -282,13 +266,7 @@ const Header = () => {
                       >
                         Purchases
                       </Link>
-                      <Link
-                        to="/reviews"
-                        onClick={() => setLoginNav(false)}
-                        className="py-2 px-4 hover:bg-gray-200 outfit"
-                      >
-                        Reviews
-                      </Link>
+
                       <Link
                         to="/help"
                         onClick={() => setLoginNav(false)}
@@ -573,36 +551,67 @@ const Header = () => {
       <div className="bg-white categories__container w-full shadow-md flex items-center justify-center gap-12 h-[50px]">
         {isMobileNavOpen && (
           <div className="flex flex-col items-center gap-4 py-4 absolute top-[100px] w-full left-0 bg-white shadow-md border">
-            {Navlinks.map((link, index) => (
-              <NavLink
-                key={index}
-                exact="true"
-                to={link.to}
-                className={`cursor-pointer outfit font-semibold text-md hover:text-[#FA6A02] ${
-                  location.pathname === link.to ? "text-[#FA6A02]" : ""
-                }`}
-                onClick={() => setIsMobileNavOpen(false)}
-              >
-                {link.navname}
-              </NavLink>
-            ))}
+            {loading
+              ? Navlinks.map((link, index) => (
+                  <NavLink
+                    key={index}
+                    to={link.to}
+                    className={`cursor-pointer outfit font-semibold text-md hover:text-[#FA6A02] ${
+                      location.pathname === link.to ? "text-[#FA6A02]" : ""
+                    }`}
+                    onClick={() => setIsMobileNavOpen(false)}
+                  >
+                    {link.navname}
+                  </NavLink>
+                ))
+              : categories.map((cat) => (
+                  <NavLink
+                    key={cat.id}
+                    to={`/categories/${cat.name.toLowerCase()}`}
+                    className={`cursor-pointer outfit font-semibold text-md hover:text-[#FA6A02] ${
+                      location.pathname ===
+                      `/categories/${cat.name.toLowerCase()}`
+                        ? "text-[#FA6A02]"
+                        : ""
+                    }`}
+                    onClick={() => setIsMobileNavOpen(false)}
+                  >
+                    {cat.name}
+                  </NavLink>
+                ))}
           </div>
         )}
 
         {/* Desktop Navigation Menu - Hidden on Mobile */}
         <div className="hidden md:flex items-center gap-12 h-[50px]">
-          {Navlinks.map((link, index) => (
-            <NavLink
-              key={index}
-              exact="true"
-              to={link.to}
-              className={`outfit font-semibold text-md hover:text-[#FA6A02] ${
-                location.pathname === link.to ? "text-[#FA6A02]" : ""
-              }`}
-            >
-              {link.navname}
-            </NavLink>
-          ))}
+          {loading
+            ? Navlinks.map((link, index) => (
+                <NavLink
+                  key={index}
+                  to={link.to}
+                  className={`cursor-pointer outfit font-semibold text-md hover:text-[#FA6A02] ${
+                    location.pathname === link.to ? "text-[#FA6A02]" : ""
+                  }`}
+                  onClick={() => setIsMobileNavOpen(false)}
+                >
+                  {link.navname}
+                </NavLink>
+              ))
+            : categories.map((cat) => (
+                <NavLink
+                  key={cat.id}
+                  to={`/categories/${cat.name.toLowerCase()}`}
+                  className={`cursor-pointer outfit font-semibold text-md hover:text-[#FA6A02] ${
+                    location.pathname ===
+                    `/categories/${cat.name.toLowerCase()}`
+                      ? "text-[#FA6A02]"
+                      : ""
+                  }`}
+                  onClick={() => setIsMobileNavOpen(false)}
+                >
+                  {cat.name}
+                </NavLink>
+              ))}
         </div>
       </div>
     </div>

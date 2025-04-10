@@ -1,31 +1,56 @@
 import React, { useState } from "react";
-import { products } from "../data/products";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import Loader from "../components/Loader";
 import { FaMinus, FaPlus } from "react-icons/fa6";
 import { useDispatch } from "react-redux";
 import { addToCart } from "../redux/cartSlice";
 import { toast } from "react-toastify";
+import { IoArrowBackCircleOutline } from "react-icons/io5";
+import useProducts from "../hooks/useProducts";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { fireDB } from "../firebase";
 
 const ProductInformation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const productId = new URLSearchParams(location.search).get("id");
+  const { products, loading } = useProducts();
 
-  const singleProduct = products.find(
-    (product) => product.id === parseInt(productId)
-  );
+  const singleProduct = products.find((product) => product.id === productId);
 
   const [quantity, setQuantity] = useState(1);
 
   const dispatch = useDispatch();
 
-  const addCart = (item) => {
-    dispatch(
-      addToCart({
-        ...item,
-        quantity,
-      })
-    );
-    toast.success(`${quantity} ${item.name} added to cart`);
+  const addCart = async (item) => {
+    if (item.stock < quantity) {
+      toast.error("Not enough stock available!");
+      return;
+    }
+
+    try {
+      const productsRef = collection(fireDB, "products");
+      const q = query(productsRef, where("id", "==", item.id));
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        querySnapshot.docs[0];
+        dispatch(
+          addToCart({
+            ...item,
+            quantity,
+            createdAt: item.createdAt?.toDate().toISOString(),
+          })
+        );
+
+        toast.success(`${quantity} ${item.name} added to cart`);
+      } else {
+        toast.error("Product not found in Firestore.");
+      }
+    } catch (error) {
+      console.error("🔥 Error updating stock:", error);
+      toast.error("Something went wrong while updating stock");
+    }
   };
 
   const handleIncrement = () => {
@@ -38,8 +63,23 @@ const ProductInformation = () => {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Loader />
+      </div>
+    );
+  }
+
   return (
     <div className="px-4 md:px-10 lg:px-16 xl:px-20 2xl:px-40 py-10 bg-gray-100">
+      <button
+        onClick={() => navigate(-1)}
+        className="text-white bg-[#FA6A02] border border-[#FA6A02] px-4 py-1 rounded-md text-lg font-semibold hover:bg-orange-600 hover:border-orange-600 transition-colors duration-300 ease-in-out mb-8 flex items-center justify-center gap-2"
+      >
+        <IoArrowBackCircleOutline size={24} />
+        Back
+      </button>
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="bg-white img__container basis-full lg:basis-1/2 shadow-lg flex items-center justify-center">
           <img
@@ -91,7 +131,12 @@ const ProductInformation = () => {
               </span>
               <button
                 onClick={handleIncrement}
-                className="border flex items-center justify-center text-[#fa6a02] border-[#FA6A02] w-[40px] h-[40px] font-semibold rounded-tr-2xl rounded-br-2xl"
+                disabled={quantity >= singleProduct?.stock}
+                className={`border flex items-center justify-center text-[#fa6a02] border-[#FA6A02] w-[40px] h-[40px] font-semibold rounded-tr-2xl rounded-br-2xl ${
+                  quantity >= singleProduct?.stock
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
               >
                 <FaPlus />
               </button>

@@ -1,6 +1,9 @@
-export const products = [
+import { fireDB } from "../firebase.js";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { v4 as uuidv4 } from "uuid";
+
+const products = [
   {
-    id: 1,
     image: "/images/products/boys/1.png",
     name: "Paw Patrol Rubble & Crew Wheeler’s Bark Yard Deluxe Dump Truck Vehicle",
     price: 1439,
@@ -10,7 +13,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 2,
     image: "/images/products/boys/2.png",
     name: "Nerf Transformers EarthSpark Cyber-Sleeve Battle Blaster",
     price: 1529.1,
@@ -20,7 +22,6 @@ export const products = [
     stock: 151,
   },
   {
-    id: 3,
     image: "/images/products/boys/3.png",
     name: "Transformers Generations Legacy United Voyager Class Prime Universe Thundertron Action Figure",
     price: 2299,
@@ -30,7 +31,6 @@ export const products = [
     stock: 131,
   },
   {
-    id: 4,
     image: "/images/products/boys/4.png",
     name: "Transformers Generations Legacy United Voyager Class Animated Universe Optimus Prime Action Figure",
     price: 1529.1,
@@ -40,7 +40,6 @@ export const products = [
     stock: 221,
   },
   {
-    id: 5,
     image: "/images/products/boys/5.png",
     name: "Marvel Legends Series Iron Man Mark LXXXV Action Figures",
     price: 1034.1,
@@ -50,7 +49,6 @@ export const products = [
     stock: 511,
   },
   {
-    id: 6,
     image: "/images/products/boys/6.png",
     name: "Marvel Avengers Legend Series Iron-Man Nano Gauntlet",
     price: 1299,
@@ -60,7 +58,6 @@ export const products = [
     stock: 323,
   },
   {
-    id: 7,
     image: "/images/products/boys/7.png",
     name: "Marvel Black Panther Legacy Collection Vibranium Power FX Mask",
     price: 512.1,
@@ -70,7 +67,6 @@ export const products = [
     stock: 511,
   },
   {
-    id: 8,
     image: "/images/products/boys/8.png",
     name: "Teamsterz Street Machines Garbage & Dump Truck 2 Packs Die-cast",
     price: 151,
@@ -80,7 +76,6 @@ export const products = [
     stock: 332,
   },
   {
-    id: 9,
     image: "/images/products/boys/9.png",
     name: "Teamsterz Beast Machines Crocodile Green Die-cast",
     price: 71,
@@ -90,7 +85,6 @@ export const products = [
     stock: 112,
   },
   {
-    id: 10,
     image: "/images/products/boys/10.png",
     name: "Orange Power Popper Gatling Machine Gun",
     price: 1299,
@@ -100,7 +94,6 @@ export const products = [
     stock: 623,
   },
   {
-    id: 11,
     image: "/images/products/boys/11.png",
     name: "Zing Klixx Creaturez Shark Blue Action Figure",
     price: 359,
@@ -110,7 +103,6 @@ export const products = [
     stock: 231,
   },
   {
-    id: 12,
     image: "/images/products/boys/12.png",
     name: "Zing Klixx Creaturez Cobra Purple Action Figure",
     price: 359,
@@ -120,9 +112,9 @@ export const products = [
     stock: 200,
   },
   {
-    id: 13,
     image: "/images/best-sellers/bs1.png",
     name: "Intex Mandarin Swim Center Inflatable Family Pool",
+    category: "Boys",
     price: 1600,
     desciption:
       "This inflatable pool is perfect for bringing cool summer fun right to your backyard. The bright orange design adds a pop of color to your outdoor space, while the rectangular shape offers plenty of room for splishing and splashing.",
@@ -130,9 +122,9 @@ export const products = [
     tag: ["Best Seller"],
   },
   {
-    id: 14,
     image: "/images/best-sellers/bs2.png",
     name: "Dream Machine Dark Blue and White 2 Nozzle Water Blaster",
+    category: "Boys",
     price: 399,
     desciption:
       "Perfect for ages 1 and up, this durable and lightweight 4-wheeled ride-on toy features a sturdy plastic frame, steel wheel axle, and a safety steering limiter. Stylish, bright, and ready to ride out of the box. Measures L19 x W7 x H14 inches.",
@@ -140,9 +132,9 @@ export const products = [
     tag: ["Best Seller"],
   },
   {
-    id: 15,
     image: "/images/best-sellers/bs3.png",
     name: "Jungle Adventure Inflatable Kid Play Center Pool",
+    category: "Boys",
     price: 5499,
     desciption:
       "The Intex jungle adventure game center takes you to a river in the center of the jungle with animals, palm trees and more! The inflatable is divided into 2 swimming pools, one small and one larger, which are connected to each other via a padded-based slide. In the small pool part, the play center has a sprinkler with garden hose socket.",
@@ -150,29 +142,29 @@ export const products = [
     tag: ["Best Seller"],
   },
   {
-    id: 16,
     image: "/images/best-sellers/bs4.png",
     name: "Red Scooter Inflatable Pool Ride-On",
     price: 300,
+    category: "Boys",
     desciption:
       "Ideal for ages 6 to 12, the Jilong Red Scooter Pool Ride-On measures 36 x 20 inches and features 2 air chambers for extra safety. Made from durable vinyl, it ensures lasting fun in the pool.",
     stock: 150,
     tag: ["Best Seller"],
   },
   {
-    id: 17,
     image: "/images/new-arrivals/na1.png",
     name: "Kinetic Sand Rainbow Unicorn Castle Squeezable Sand",
     price: 249.75,
     desciption:
       "Perfect for ages 3 and up, this squeezable sand doesn't stain, dry out, or dissolve in water. It's safe, hypoallergenic, and prevents bacterial growth. Mix to create new colors and scents. Color and packaging may vary.",
     stock: 150,
+    category: "Boys",
     tag: ["New Arrivals"],
   },
   {
-    id: 18,
     image: "/images/new-arrivals/na2.png",
     name: "Chillafish ItsiBitsi Blocks 4-Wheel First Ride-On Training Bike",
+    category: "Boys",
     price: 1199,
     desciption:
       "Ideal for ages 1 and up, this durable 4-wheeled ride-on features a strong plastic frame, steel wheel axle, and safety steering limiter. Lightweight, stylish, and bright, it comes fully assembled and measures L19 x W7 x H14 inches. Perfect for your child's first ride-on!",
@@ -180,9 +172,9 @@ export const products = [
     tag: ["New Arrivals"],
   },
   {
-    id: 19,
     image: "/images/new-arrivals/na3.png",
     name: "Transformers Rise Of The Beasts Rhinox Action Figure",
+    category: "Boys",
     price: 1699,
     desciption:
       "Recommended for ages 8 and up, this pre-painted and pre-assembled figure from Yolopark's AMK series is easy to put together. Once constructed, it stands just under 8 inches tall with premium articulation, showcasing Rhinox from the upcoming Transformers: Rise of the Beasts movie. Color and packaging may vary.",
@@ -190,9 +182,9 @@ export const products = [
     tag: ["New Arrivals"],
   },
   {
-    id: 20,
     image: "/images/new-arrivals/na4.png",
     name: "Globber Master Teal 3-Wheel Electronic Scooter",
+    category: "Boys",
     price: 23499.75,
     desciption:
       "Recommended for ages 4 and up, this scooter features ergonomic dual-color grips, a wide anti-slip deck, and supports up to 50kg. It has a 5-height adjustable aluminum T-bar, a patented folding system, and a steering lock button for safe riding. Made of durable metal for lasting fun.",
@@ -200,7 +192,6 @@ export const products = [
     tag: ["New Arrivals"],
   },
   {
-    id: 21,
     image: "/images/products/girls/21.png",
     name: "Barbie Made To Move Blue Doll",
     price: 999,
@@ -210,7 +201,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 22,
     image: "/images/products/girls/22.png",
     name: "Disney Frozen Magical Skirt Anna Fashion Doll",
     price: 199,
@@ -220,7 +210,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 23,
     image: "/images/products/girls/23.png",
     name: "Disney Princess Ariel Doll",
     price: 1199,
@@ -230,7 +219,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 24,
     image: "/images/products/girls/24.png",
     name: "Dilly Dolly Sweet Tootsie Blue/Pink Dress Doll",
     price: 600,
@@ -240,7 +228,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 25,
     image: "/images/products/girls/25.png",
     name: "Squishmallows Wanda 12 inch Plush",
     price: 674,
@@ -250,7 +237,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 26,
     image: "/images/products/girls/26.png",
     name: "Squishmallows Woxie 12 inch Plush",
     price: 674,
@@ -260,7 +246,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 27,
     image: "/images/products/girls/27.png",
     name: "Gabby's Dollhouse Gabby's Party Room Playset",
     price: 2599,
@@ -270,7 +255,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 28,
     image: "/images/products/girls/28.png",
     name: "Gabby's Dollhouse Pillow Cat's Sweet Dreams Bedroom Playset",
     price: 1199,
@@ -280,7 +264,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 29,
     image: "/images/products/girls/29.png",
     name: "Hatchimals Alive Rainbow Hatchery - Amazing Color Swirl Mini Figures",
     price: 2199,
@@ -290,7 +273,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 30,
     image: "/images/products/girls/30.png",
     name: "Head Start Hairdooz Frooty Scented Candy Doll",
     price: 449,
@@ -300,7 +282,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 31,
     image: "/images/products/girls/31.png",
     name: "Barbie Stacie's Puppy Playground Playset",
     price: 2499,
@@ -310,7 +291,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 32,
     image: "/images/products/girls/32.png",
     name: "KidShop My Glamorous Vanity Playset",
     price: 584,
@@ -320,7 +300,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 33,
     image: "/images/products/baby/41.png",
     name: "Fisher-Price Laugh & Learn Smart Stages Tablet Grey",
     price: 1499,
@@ -330,7 +309,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 34,
     image: "/images/products/baby/42.png",
     name: "Fisher-Price Smart Stages Laugh & Learn Puppy",
     price: 2799,
@@ -340,7 +318,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 35,
     image: "/images/products/baby/43.png",
     name: "Fisher-Price Laugh & Learn Storybook Rhymes",
     price: 1439,
@@ -350,7 +327,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 36,
     image: "/images/products/baby/44.png",
     name: "Fisher-Price Learn With Me Zebra Walker",
     price: 2499,
@@ -360,7 +336,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 37,
     image: "/images/products/baby/45.png",
     name: "Fisher-Price Infant Game Time Activity Board",
     price: 2499,
@@ -370,7 +345,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 38,
     image: "/images/products/baby/46.png",
     name: "Fisher Price Laugh & Learn Twist & Learn Gamer Playset",
     price: 1599,
@@ -380,7 +354,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 39,
     image: "/images/products/baby/47.png",
     name: "Fisher-Price Laugh & Learn Counting & Colors Smoothie Maker",
     price: 1499,
@@ -390,7 +363,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 40,
     image: "/images/products/baby/48.png",
     name: "Fisher-Price Glow And Grow Kick & Play Piano Gym",
     price: 3499,
@@ -400,7 +372,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 41,
     image: "/images/products/baby/49.png",
     name: "Fisher-Price Infant Shapes & Sounds Vehicle Puzzle",
     price: 1499,
@@ -410,7 +381,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 42,
     image: "/images/products/baby/50.png",
     name: "VTech Baby Pink Sort and Learn Car",
     price: 1799,
@@ -420,7 +390,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 43,
     image: "/images/products/baby/51.png",
     name: "VTech Sort and Discover Drum",
     price: 1799,
@@ -430,7 +399,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 44,
     image: "/images/products/baby/52.png",
     name: "VTech Baby Bear Laptop",
     price: 1499,
@@ -440,7 +408,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 45,
     image: "/images/products/learning/53.png",
     name: "Picasso Tiles 52pcs Farm Animal Set With 8 Action Figures",
     price: 2610,
@@ -450,7 +417,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 46,
     image: "/images/products/learning/54.png",
     name: "Picasso Tiles 52pcs Marine Animal Set With 8 Action Figures",
     price: 2610,
@@ -460,7 +426,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 47,
     image: "/images/products/learning/55.png",
     name: "Picasso Tiles 45pcs Construction Set With 8 Vehicles",
     price: 1710,
@@ -470,7 +435,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 48,
     image: "/images/products/learning/56.png",
     name: "KidShop Yellow 125pcs Blocks",
     price: 180,
@@ -480,7 +444,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 49,
     image: "/images/products/learning/57.png",
     name: "KidShop Blocks 'n Crafts 76 pcs Building Blocks",
     price: 521,
@@ -490,7 +453,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 50,
     image: "/images/products/learning/58.png",
     name: "KidShop Blocks 'n Crafts 168 pcs Building Blocks",
     price: 675,
@@ -500,7 +462,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 51,
     image: "/images/products/learning/59.png",
     name: "KidShop Blocks 'n Craft 46 pcs Building Blocks",
     price: 341,
@@ -510,7 +471,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 52,
     image: "/images/products/learning/60.png",
     name: "KidShop 100 pcs Building Blocks",
     price: 170,
@@ -520,7 +480,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 53,
     image: "/images/products/learning/61.png",
     name: "Lego 42617 Friends Farm Animal Sanctuary 489pcs Building Blocks",
     price: 4299,
@@ -530,7 +489,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 54,
     image: "/images/products/learning/62.png",
     name: "Lego 42612 Friends Cat Playground Adventure 87pcs Building Blocks",
     price: 550,
@@ -540,7 +498,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 55,
     image: "/images/products/learning/63.png",
     name: "Lego 42601 Friends Hamster Playground 167pcs Building Blocks",
     price: 1499,
@@ -550,7 +507,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 56,
     image: "/images/products/learning/64.png",
     name: "Lego 42615 Friends Pet Adoption Day 400pcs Building Blocks",
     price: 3499,
@@ -560,7 +516,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 57,
     image: "/images/products/riding/65.png",
     name: "Teal Rocking Animal Ride-On",
     price: 1499,
@@ -570,7 +525,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 58,
     image: "/images/products/riding/66.png",
     name: "Red Rocking Horse Ride-On",
     price: 1499,
@@ -580,7 +534,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 59,
     image: "/images/products/riding/67.png",
     name: "Croko Rider Kiddie Ride-On",
     price: 799,
@@ -590,7 +543,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 60,
     image: "/images/products/riding/68.png",
     name: "Jeep Pink/Blue Ride-On",
     price: 4699,
@@ -600,7 +552,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 61,
     image: "/images/products/riding/69.png",
     name: "JD Bug Pink Kick Scooter",
     price: 2699,
@@ -610,7 +561,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 62,
     image: "/images/products/riding/70.png",
     name: "JD Bug Blue Kick Scooter",
     price: 2699,
@@ -620,7 +570,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 63,
     image: "/images/products/riding/71.png",
     name: "Chien Ti White Rapid Ride-On Car",
     price: 8400,
@@ -630,7 +579,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 64,
     image: "/images/products/riding/72.png",
     name: "Deck Genesis Blue 16 inch Bike",
     price: 3900,
@@ -640,7 +588,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 66,
     image: "/images/products/riding/73.png",
     name: "Disney Princess 12 inch Bike",
     price: 3999,
@@ -650,7 +597,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 67,
     image: "/images/products/riding/74.png",
     name: "2022 Jr Motorsport Led Light WHL Blue Motorcycle Ride-On",
     price: 10999,
@@ -660,7 +606,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 68,
     image: "/images/products/riding/75.png",
     name: "Disney Frozen Twist Car",
     price: 1099,
@@ -670,7 +615,6 @@ export const products = [
     stock: 521,
   },
   {
-    id: 69,
     image: "/images/products/riding/76.png",
     name: "Chillafish ItsiBitsi Blocks 4-Wheel First Ride-On Blue and Yellow Balance Training Bike",
     price: 1079,
@@ -681,30 +625,24 @@ export const products = [
   },
 ];
 
-export const categoriesBanner = [
-  {
-    id: 1,
-    category: "Boys",
-    image: "/images/products/boys/boysbanner.png",
-  },
-  {
-    id: 2,
-    category: "Girls",
-    image: "/images/products/girls/girlsbanner.png",
-  },
-  {
-    id: 3,
-    category: "Baby",
-    image: "/images/products/baby/babybanner.png",
-  },
-  {
-    id: 4,
-    category: "Learning",
-    image: "/images/products/learning/learningbanner.png",
-  },
-  {
-    id: 5,
-    category: "Riding",
-    image: "/images/products/riding/ridingbanner.png",
-  },
-];
+const addProductsToFirestore = async () => {
+  const productsCollection = collection(fireDB, "products");
+
+  for (let product of products) {
+    try {
+      const customId = uuidv4();
+      await addDoc(productsCollection, {
+        ...product,
+        id: customId, // this goes inside the document
+        createdAt: serverTimestamp(), // ✅ Add timestamp here
+      });
+      console.log("✅ Product added:", product.name);
+    } catch (e) {
+      console.error("❌ Error adding product:", e);
+    }
+  }
+
+  console.log("🎉 All products have been seeded into Firestore.");
+};
+
+addProductsToFirestore(); // Call this to add products
